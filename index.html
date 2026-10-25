@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GADIA PRO - हिसाब-किताब</title>
+    <style>
+        :root {
+            --bg-color: #0d131a;
+            --card-bg: #16222f;
+            --card-border: #233547;
+            --accent-green: #25d366;
+            --accent-lime: #00e676;
+            --accent-red: #ff5252;
+            --accent-blue: #29b6f6;
+            --accent-yellow: #ffca28;
+            --text-main: #ffffff;
+            --text-sub: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 80px; }
+        .header { background-color: #111a24; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--card-border); position: sticky; top: 0; z-index: 100; }
+        .header h1 { font-size: 1.2rem; display: flex; align-items: center; gap: 8px; color: #fff; }
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+        .calc-icon-btn { background: #1a2736; border: 1px solid var(--card-border); color: var(--accent-lime); padding: 6px 10px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .container { padding: 15px; max-width: 600px; margin: 0 auto; }
+        .hero-card { background: linear-gradient(135deg, #00c853 0%, #b2ff59 100%); color: #05200a; padding: 20px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(0,230,118,0.2); }
+        .hero-card.negative { background: linear-gradient(135deg, #d50000 0%, #ff8a80 100%); color: #2c0000; }
+        .hero-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; opacity: 0.85; }
+        .hero-amount { font-size: 2.2rem; font-weight: 800; margin: 8px 0; }
+        .hero-sub { font-size: 0.8rem; opacity: 0.8; display: flex; justify-content: space-between; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .stat-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; cursor: pointer; transition: transform 0.1s; }
+        .stat-card:active { transform: scale(0.98); }
+        .stat-header { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 6px; }
+        .stat-val { font-size: 1.25rem; font-weight: 700; }
+        .val-earning { color: var(--accent-lime); }
+        .val-expense { color: var(--accent-red); }
+        .val-salary { color: var(--accent-blue); }
+        .val-advance { color: var(--accent-yellow); }
+        .action-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .btn-tab { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--card-border); background: var(--card-bg); color: var(--text-main); font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+        .btn-tab.primary { background: #00e676; color: #000; border: none; }
+        .form-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; margin-bottom: 20px; }
+        .form-title { font-size: 1rem; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+        .form-group label { font-size: 0.75rem; color: var(--text-sub); text-transform: uppercase; font-weight: 600; }
+        .form-control { background-color: #0d131a; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px; color: var(--text-main); font-size: 0.95rem; outline: none; width: 100%; }
+        .form-control:focus { border-color: var(--accent-lime); }
+        .btn-submit { width: 100%; background: var(--accent-lime); color: #000; border: none; padding: 12px; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+              .calc-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 300; padding: 15px; align-items: center; justify-content: center; }
+        .calc-modal.active { display: flex; }
+        .calc-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; width: 100%; max-width: 360px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .calc-display { background-color: #0d131a; border: 1px solid var(--card-border); border-radius: 10px; padding: 10px; text-align: right; margin-bottom: 12px; }
+        .calc-input-field { width: 100%; background: transparent; border: none; color: #fff; font-size: 1.1rem; text-align: right; outline: none; }
+        .calc-live-result { font-size: 1.4rem; color: var(--accent-lime); font-weight: 700; margin-top: 4px; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .calc-btn { padding: 12px; border-radius: 8px; border: 1px solid var(--card-border); background-color: #1a2736; color: #fff; font-size: 1.1rem; font-weight: 600; cursor: pointer; text-align: center; }
+        .calc-btn.op { background-color: #26384c; color: var(--accent-blue); }
+        .calc-btn.del { background-color: #3b1c1c; color: var(--accent-red); }
+        .calc-btn.equal { background-color: var(--accent-lime); color: #000; grid-column: span 2; }
+        .use-calc-result { margin-top: 8px; width: 100%; padding: 8px; background: rgba(0, 230, 118, 0.1); border: 1px dashed var(--accent-lime); color: var(--accent-lime); border-radius: 8px; font-size: 0.8rem; cursor: pointer; display: none; }
+        .calc-history-box { margin-top: 10px; background: #0d131a; border: 1px solid var(--card-border); border-radius: 8px; padding: 8px; max-height: 90px; overflow-y: auto; }
+        .calc-history-title { font-size: 0.7rem; color: var(--text-sub); margin-bottom: 4px; text-transform: uppercase; }
+        .calc-history-item { font-size: 0.8rem; display: flex; justify-content: space-between; padding: 2px 0; color: var(--text-sub); }
+        .calc-history-item span b { color: var(--accent-lime); }
+        .history-list { display: flex; flex-direction: column; gap: 10px; }
+        .history-item { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 14px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .history-info div:first-child { font-weight: 600; font-size: 0.95rem; margin-bottom: 2px; }
+        .history-info div:last-child { font-size: 0.75rem; color: var(--text-sub); }
+        .history-amt { font-weight: 700; font-size: 1rem; text-align: right; }
+        .del-btn { color: #ff5252; background: none; border: none; margin-left: 10px; cursor: pointer; font-size: 1rem; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 200; padding: 20px; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--card-border); width: 100%; max-width: 450px; max-height: 80vh; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 15px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 15px; overflow-y: auto; flex: 1; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #111a24; border-top: 1px solid var(--card-border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-sub); font-size: 0.7rem; cursor: pointer; }
+        .nav-item.active { color: var(--accent-lime); }
+        .empty-state { text-align: center; padding: 30px 10px; color: var(--text-sub); font-size: 0.9rem; }
+        .pills { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; }
+        .pill { padding: 6px 14px; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--card-border); font-size: 0.8rem; white-space: nowrap; cursor: pointer; color: var(--text-sub); }
+        .pill.active { background: var(--accent-blue); color: #000; font-weight: 600; }
+    </style>
+</head>
+<body>
+      <div class="header">
+        <h1>🚕 GADIA PRO <span style="font-size: 0.7rem; background: #00e676; color: #000; padding: 2px 6px; border-radius: 4px;">OFFLINE</span></h1>
+        <div class="header-actions">
+            <button class="calc-icon-btn" onclick="openCalcModal()">🧮 कैलकुलेटर</button>
+            <button id="exportBtn" style="background:none; border:none; color:var(--accent-blue); font-size:0.8rem; cursor:pointer; font-weight:600;">📥 CSV</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-card" id="heroCard">
+            <div class="hero-title">सब खर्च घटाकर नेट मुनाफा / नुकसान</div>
+            <div class="hero-amount" id="netProfitVal">₹0</div>
+            <div class="hero-sub">
+                <span>(कमाई में से खर्च, सैलरी व एडवांस घटाया गया)</span>
+                <span id="marginPercent">0%</span>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card" onclick="openDetailModal('कमाई')"><div class="stat-header">💰 कुल कमाई</div><div class="stat-val val-earning" id="statEarning">₹0</div></div>
+            <div class="stat-card" onclick="openDetailModal('खर्च')"><div class="stat-header">📉 कुल खर्च</div><div class="stat-val val-expense" id="statExpense">₹0</div></div>
+            <div class="stat-card" onclick="openDetailModal('सैलरी')"><div class="stat-header">👨‍✈️ सैलरी दी</div><div class="stat-val val-salary" id="statSalary">₹0</div></div>
+            <div class="stat-card" onclick="openDetailModal('एडवांस')"><div class="stat-header">🤝 एडवांस (कटेगा)</div><div class="stat-val val-advance" id="statAdvance">₹0</div></div>
+        </div>
+
+        <div class="action-tabs">
+            <button class="btn-tab primary" onclick="scrollToSection('formSection')">➕ नई एंट्री जोड़ें</button>
+            <button class="btn-tab" onclick="openCalcModal()">🧮 कैलकुलेटर खोलें</button>
+        </div>
+
+        <div class="form-card" id="formSection">
+            <div class="form-title"><span>नई एंट्री जोड़ें</span></div>
+            <form id="entryForm">
+                <div class="form-row">
+                    <div class="form-group"><label>एंट्री प्रकार</label><select id="typeSelect" class="form-control" onchange="updateCategories()"><option value="कमाई">💰 कमाई</option><option value="खर्च">⛽ खर्च</option><option value="सैलरी">👨‍✈️ सैलरी</option><option value="एडवांस">🤝 एडवांस</option></select></div>
+                    <div class="form-group"><label>तारीख</label><input type="date" id="dateInput" class="form-control" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>श्रेणी</label><select id="categorySelect" class="form-control"></select></div>
+                    <div class="form-group"><label>गाड़ी नंबर</label><input type="text" id="vehicleNo" class="form-control" placeholder="MH01AB1234"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>रकम (₹) *</label><input type="number" id="amountInput" class="form-control" placeholder="0" required></div>
+                    <div class="form-group"><label>विवरण</label><input type="text" id="noteInput" class="form-control" placeholder="विवरण"></div>
+                </div>
+                <button type="submit" class="btn-submit">सबमिट करें</button>
+            </form>
+        </div>
+
+        <div style="margin-top: 25px;">
+            <div class="form-title"><span>📜 सभी रिकॉर्ड्स</span><button onclick="clearAllData()" style="background:none; border:none; color:var(--accent-red); font-size:0.75rem; cursor:pointer;">सभी मिटाएं</button></div>
+            <div class="pills">
+                <div class="pill active" onclick="filterRecords('all', this)">सभी</div>
+                <div class="pill" onclick="filterRecords('कमाई', this)">कमाई</div>
+                <div class="pill" onclick="filterRecords('खर्च', this)">खर्च</div>
+                <div class="pill" onclick="filterRecords('सैलरी', this)">सैलरी</div>
+                <div class="pill" onclick="filterRecords('एडवांस', this)">एडवांस</div>
+            </div>
+            <div class="history-list" id="mainHistoryList"></div>
+        </div>
+    </div>
+
+    <div class="calc-modal" id="calcModal">
+        <div class="calc-card">
+            <div class="form-title"><span>🧮 स्मार्ट कैलकुलेटर</span><button onclick="closeCalcModal()" style="background:none; border:none; color:#fff; font-size:1.3rem; cursor:pointer;">✕</button></div>
+            <div class="calc-display">
+                <input type="text" id="calcInput" class="calc-input-field" placeholder="2+2..." oninput="calculateLive()">
+                <div class="calc-live-result" id="calcResult">= 0</div>
+            </div>
+            <button class="use-calc-result" id="useResultBtn" onclick="applyCalcResult()">➡️ इस रकम को फ़ॉर्म में डालें</button>
+            <div class="calc-grid" style="margin-top:10px;">
+                <button class="calc-btn op" onclick="pressCalc('C')">C</button>
+                <button class="calc-btn del" onclick="pressCalc('DEL')">⌫</button>
+                <button class="calc-btn op" onclick="pressCalc('(')">(</button>
+                <button class="calc-btn op" onclick="pressCalc('/')">÷</button>
+                <button class="calc-btn" onclick="pressCalc('7')">7</button><button class="calc-btn" onclick="pressCalc('8')">8</button><button class="calc-btn" onclick="pressCalc('9')">9</button><button class="calc-btn op" onclick="pressCalc('*')">×</button>
+                <button class="calc-btn" onclick="pressCalc('4')">4</button><button class="calc-btn" onclick="pressCalc('5')">5</button><button class="calc-btn" onclick="pressCalc('6')">6</button><button class="calc-btn op" onclick="pressCalc('-')">-</button>
+                <button class="calc-btn" onclick="pressCalc('1')">1</button><button class="calc-btn" onclick="pressCalc('2')">2</button><button class="calc-btn" onclick="pressCalc('3')">3</button><button class="calc-btn op" onclick="pressCalc('+')">+</button>
+                <button class="calc-btn" onclick="pressCalc('0')">0</button><button class="calc-btn" onclick="pressCalc('.')">.</button><button class="calc-btn equal" onclick="pressCalc('=')">=</button>
+            </div>
+            <div class="calc-history-box"><div class="calc-history-title">📜 इतिहास</div><div id="calcHistoryList"><div style="font-size: 0.75rem; color: var(--text-sub);">कोई हिसाब नहीं...</div></div></div>
+        </div>
+    </div>
+
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header"><h3 id="modalTitle">इतिहास</h3><button onclick="closeModal()" style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;">✕</button></div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="scrollToSection('heroCard')"><span>📊</span><span>डैशबोर्ड</span></div>
+        <div class="nav-item" onclick="scrollToSection('formSection')"><span>📝</span><span>एंट्री</span></div>
+        <div class="nav-item" onclick="openCalcModal()"><span>🧮</span><span>कैलकुलेटर</span></div>
+    </div>
+
+    <script>
+        let records = JSON.parse(localStorage.getItem('gadia_pro_records')) || [];
+        let calcHistory = JSON.parse(localStorage.getItem('gadia_calc_history')) || [];
+        const categoriesMap = { 'कमाई': ['गाड़ी की कमाई', 'अन्य कमाई'], 'खर्च': ['पेट्रोल', 'CNG', 'मेंटेनेंस', 'टोल', 'पार्रकिंग', 'अन्य खर्च'], 'सैलरी': ['ड्राइवर सैलरी'], 'एडवांस': ['ड्राइवर एडवांस'] };
+
+        document.addEventListener('DOMContentLoaded', () => { document.getElementById('dateInput').valueAsDate = new Date(); updateCategories(); renderApp(); renderCalcHistory(); });
+
+        function updateCategories() {
+            const type = document.getElementById('typeSelect').value;
+            const catSelect = document.getElementById('categorySelect');
+            catSelect.innerHTML = '';
+            categoriesMap[type].forEach(cat => { const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat; catSelect.appendChild(opt); });
+        }
+
+        document.getElementById('entryForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const type = document.getElementById('typeSelect').value;
+            const date = document.getElementById('dateInput').value;
+            const category = document.getElementById('categorySelect').value;
+            const vehicleNo = document.getElementById('vehicleNo').value.trim() || 'N/A';
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            const note = document.getElementById('noteInput').value.trim() || '-';
+            records.unshift({ id: Date.now(), type, date, category, vehicleNo, amount, note });
+            saveData(); renderApp();
+            document.getElementById('amountInput').value = ''; document.getElementById('noteInput').value = '';
+            alert('एंट्री दर्ज हो गई!');
+        });
+
+        function saveData() { localStorage.setItem('gadia_pro_records', JSON.stringify(records)); }
+
+        function renderApp() {
+            let totalEarning = 0, totalExpense = 0, totalSalary = 0, totalAdvance = 0;
+            records.forEach(r => {
+                if (r.type === 'कमाई') totalEarning += r.amount;
+                else if (r.type === 'खर्च') totalExpense += r.amount;
+                else if (r.type === 'सैलरी') totalSalary += r.amount;
+                else if (r.type === 'एडवांस') totalAdvance += r.amount;
+            });
+            const netBalance = totalEarning - totalExpense - totalSalary - totalAdvance;
+            document.getElementById('statEarning').textContent = '₹' + totalEarning.toLocaleString('en-IN');
+            document.getElementById('statExpense').textContent = '₹' + totalExpense.toLocaleString('en-IN');
+            document.getElementById('statSalary').textContent = '₹' + totalSalary.toLocaleString('en-IN');
+            document.getElementById('statAdvance').textContent = '₹' + totalAdvance.toLocaleString('en-IN');
+            const heroCard = document.getElementById('heroCard');
+            const netProfitVal = document.getElementById('netProfitVal');
+            netProfitVal.textContent = '₹' + netBalance.toLocaleString('en-IN');
+            if (netBalance < 0) heroCard.classList.add('negative'); else heroCard.classList.remove('negative');
+            document.getElementById('marginPercent').textContent = (totalEarning > 0 ? ((netBalance / totalEarning) * 100).toFixed(1) : 0) + '% Margin';
+            renderHistoryList(records);
+        }
+
+        function renderHistoryList(listData) {
+            const listEl = document.getElementById('mainHistoryList');
+            if (listData.length === 0) { listEl.innerHTML = '<div class="empty-state">कोई रिकॉर्ड नहीं मिला।</div>'; return; }
+            listEl.innerHTML = listData.map(r => `
+                <div class="history-item">
+                    <div class="history-info"><div>${r.category} ${r.vehicleNo !== 'N/A' ? `(${r.vehicleNo})` : ''}</div><div>${r.date} ${r.note !== '-' ? `• ${r.note}` : ''}</div></div>
+                    <div style="display:flex; align-items:center;"><div class="history-amt ${r.type === 'कमाई' ? 'val-earning' : 'val-expense'}">${r.type === 'कमाई' ? '+' : '-'} ₹${r.amount.toLocaleString('en-IN')}</div><button class="del-btn" onclick="deleteRecord(${r.id})">🗑️</button></div>
+                </div>
+            `).join('');
+        }
+
+        function deleteRecord(id) { if (confirm('मिटाना चाहते हैं?')) { records = records.filter(r => r.id !== id); saveData(); renderApp(); } }
+        function clearAllData() { if (confirm('सारा डेटा मिटाना चाहते हैं?')) { records = []; saveData(); renderApp(); } }
+        function filterRecords(type, element) {
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active')); element.classList.add('active');
+            renderHistoryList(type === 'all' ? records : records.filter(r => r.type === type));
+        }
+
+        function openDetailModal(type) {
+            const modal = document.getElementById('detailModal'), title = document.getElementById('modalTitle'), body = document.getElementById('modalBody');
+            title.textContent = `${type} का इतिहास`;
+            const list = records.filter(r => r.type === type);
+            body.innerHTML = list.length === 0 ? '<div class="empty-state">कोई इतिहास नहीं।</div>' : list.map(r => `
+                <div class="history-item" style="margin-bottom:8px;">
+                    <div class="history-info"><div>${r.category} (${r.vehicleNo})</div><div>📅 ${r.date} | 📝 ${r.note}</div></div>
+                    <div class="history-amt ${type === 'कमाई' ? 'val-earning' : 'val-expense'}">₹${r.amount.toLocaleString('en-IN')}</div>
+                </div>
+            `).join('');
+            modal.classList.add('active');
+        }
+        function closeModal() { document.getElementById('detailModal').classList.remove('active'); }
+        function openCalcModal() { document.getElementById('calcModal').classList.add('active'); }
+        function closeCalcModal() { document.getElementById('calcModal').classList.remove('active'); }
+
+        let lastValidCalcResult = 0;
+        function calculateLive() {
+            const input = document.getElementById('calcInput').value, resEl = document.getElementById('calcResult'), useBtn = document.getElementById('useResultBtn');
+            if (!input.trim()) { resEl.textContent = '= 0'; useBtn.style.display = 'none'; return; }
+            try {
+                const sanitized = input.replace(/[^0-9+\-*/().]/g, '');
+                if (sanitized) {
+                    const result = eval(sanitized);
+                    if (result !== undefined && !isNaN(result)) {
+                        lastValidCalcResult = result;
+                        resEl.textContent = '= ' + result.toLocaleString('en-IN');
+                        document.getElementById('resValSpan').textContent = result.toLocaleString('en-IN');
+                        useBtn.style.display = 'block';
+                    }
+                }
+            } catch (err) {}
+        }
+
+        function pressCalc(val) {
+            const input = document.getElementById('calcInput');
+            if (val === 'C') input.value = '';
+            else if (val === 'DEL') input.value = input.value.slice(0, -1);
+            else if (val === '=') {
+                if (lastValidCalcResult !== undefined) {
+                    const expr = input.value; input.value = lastValidCalcResult;
+                    if (expr.trim() !== '') {
+                        calcHistory.unshift({ expr, result: lastValidCalcResult });
+                        if (calcHistory.length > 10) calcHistory.pop();
+                        localStorage.setItem('gadia_calc_history', JSON.stringify(calcHistory));
+                        renderCalcHistory();
+                    }
+                }
+            } else { input.value += val; }
+            calculateLive();
+        }
+
+        function renderCalcHistory() {
+            const box = document.getElementById('calcHistoryList');
+            box.innerHTML = calcHistory.length === 0 ? '<div style="font-size: 0.75rem; color: var(--text-sub);">कोई हिसाब नहीं...</div>' : calcHistory.map(h => `
+                <div class="calc-history-item"><span>${h.expr}</span><span>= <b>₹${h.result.toLocaleString('en-IN')}</b></span></div>
+            `).join('');
+        }
+
+        function applyCalcResult() { document.getElementById('amountInput').value = lastValidCalcResult; closeCalcModal(); scrollToSection('formSection'); }
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            if (records.length === 0) { alert('कोई रिकॉर्ड नहीं!'); return; }
+            let csv = 'ID,Date,Type,Category,Vehicle_No,Amount,Note\n';
+            records.forEach(r => { csv += `"${r.id}","${r.date}","${r.type}","${r.category}","${r.vehicleNo}","${r.amount}","${r.note}"\n`; });
+            const blob = new Blob([csv], { type: 'text/csv' }), url = window.URL.createObjectURL(blob), a = document.createElement('a');
+            a.setAttribute('href', url); a.setAttribute('download', `Gadia_Pro_Hisab_${new Date().toISOString().slice(0,10)}.csv`); a.click();
+        });
+
+        function scrollToSection(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
+    </script>
+</body>
+</html>
