@@ -1,0 +1,13 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "GADIA PRO",
+  "short_name": "GadiaPro",
+  "orientation": "any",
+  "scope": "/",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "id": "gadia.pro",
+  "description": "Hisab kitab karne ka asan tarika"
+}
